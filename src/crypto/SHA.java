@@ -8,10 +8,12 @@ import java.util.Arrays;
 
 public class SHA {
     
+    private static final String ALGORITHM = "SHA-512";
+
     public static byte[] generateHash(Serializable object)
             throws NoSuchAlgorithmException, IOException {
         
-        MessageDigest md = MessageDigest.getInstance("SHA-512");
+        MessageDigest md = MessageDigest.getInstance(ALGORITHM);
         byte[] bytes =Helpers.objectToByteArray(object);
         md.update(bytes);
         byte[] hash = md.digest();

@@ -22,7 +22,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class AES {
 
-    private static final String algorithm = "AES/CBC/PKCS5Padding";
+    private static final String ALGORITHM = "AES/CTR/NoPadding";
 
     public static SecretKey generateKey(int n) throws NoSuchAlgorithmException {
         KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
@@ -40,31 +40,33 @@ public class AES {
         return secret;
     }
 
-    public static IvParameterSpec generateIv() {
+    public static byte[] generateIv() {
         byte[] iv = new byte[16];
         new SecureRandom().nextBytes(iv);
-        return new IvParameterSpec(iv);
+        return iv;
     }
 
-    public static SealedObject encryptObject(Serializable object, SecretKey key, IvParameterSpec iv)
+    public static SealedObject encryptObject(Serializable object, SecretKey key, byte[] iv)
             throws NoSuchPaddingException, NoSuchAlgorithmException,
             InvalidAlgorithmParameterException, InvalidKeyException,
             IOException, IllegalBlockSizeException {
 
-        Cipher cipher = Cipher.getInstance(algorithm);
-        cipher.init(Cipher.ENCRYPT_MODE, key, iv);
+        Cipher cipher = Cipher.getInstance(ALGORITHM);
+        IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
+        cipher.init(Cipher.ENCRYPT_MODE, key, ivParameterSpec);
         SealedObject sealedObject = new SealedObject(object, cipher);
         return sealedObject;
     }
 
-    public static Serializable decryptObject(SealedObject sealedObject, SecretKey key, IvParameterSpec iv)
+    public static Serializable decryptObject(SealedObject sealedObject, SecretKey key, byte[] iv)
             throws NoSuchPaddingException, NoSuchAlgorithmException,
             InvalidAlgorithmParameterException, InvalidKeyException,
             ClassNotFoundException, BadPaddingException, IllegalBlockSizeException,
             IOException {
 
-        Cipher cipher = Cipher.getInstance(algorithm);
-        cipher.init(Cipher.DECRYPT_MODE, key, iv);
+        Cipher cipher = Cipher.getInstance(ALGORITHM);
+        IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
+        cipher.init(Cipher.DECRYPT_MODE, key, ivParameterSpec);
         Serializable unsealObject = (Serializable) sealedObject.getObject(cipher);
         return unsealObject;
     }

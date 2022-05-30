@@ -13,6 +13,8 @@ import java.security.SignatureException;
 
 public class DSA {
 
+    private static final String ALGORITHM = "SHA512withDSA";
+
     public static KeyPair generateKeyPair(int n) throws NoSuchAlgorithmException {
         KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("DSA");
         keyPairGen.initialize(n);
@@ -24,7 +26,7 @@ public class DSA {
             throws NoSuchAlgorithmException, InvalidKeyException,
             SignatureException, IOException {
 
-        Signature sign = Signature.getInstance("SHA256withDSA");
+        Signature sign = Signature.getInstance(ALGORITHM);
         sign.initSign(privateKey);
         byte[] bytes =Helpers.objectToByteArray(object);
         sign.update(bytes);
@@ -36,7 +38,7 @@ public class DSA {
             throws NoSuchAlgorithmException, InvalidKeyException,
             SignatureException, IOException {
         
-        Signature sign = Signature.getInstance("SHA256withDSA");
+        Signature sign = Signature.getInstance(ALGORITHM);
         sign.initVerify(publicKey);
         byte[] bytes = Helpers.objectToByteArray(object);
         sign.update(bytes);
