@@ -16,32 +16,35 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SealedObject;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
 public class AES {
 
-    private static final String ALGORITHM = "AES/CTR/NoPadding";
+    private static final String ALGORITHM = "AES/GCM/NoPadding";
+    public static final int KEY_SIZE = 256;
+    public static final int IV_LENGTH = 12;
+    public static final int TAG_LENGTH = 16;
 
-    public static SecretKey generateKey(int n) throws NoSuchAlgorithmException {
+    public static SecretKey generateKey() throws NoSuchAlgorithmException {
         KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
-        keyGenerator.init(n);
+        keyGenerator.init(KEY_SIZE);
         SecretKey key = keyGenerator.generateKey();
         return key;
     }
 
-    public static SecretKey getKeyFromPassword(String password, String salt)
+    public static SecretKey generateKeyFromPassword(String password, String salt)
             throws NoSuchAlgorithmException, InvalidKeySpecException {
 
         SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-        KeySpec spec = new PBEKeySpec(password.toCharArray(), salt.getBytes(), 65536, 256);
+        KeySpec spec = new PBEKeySpec(password.toCharArray(), salt.getBytes(), 65536, KEY_SIZE);
         SecretKey secret = new SecretKeySpec(factory.generateSecret(spec).getEncoded(), "AES");
         return secret;
     }
 
-    public static byte[] generateIv() {
-        byte[] iv = new byte[16];
+    public static byte[] generateIV() {
+        byte[] iv = new byte[IV_LENGTH];
         new SecureRandom().nextBytes(iv);
         return iv;
     }
@@ -52,8 +55,9 @@ public class AES {
             IOException, IllegalBlockSizeException {
 
         Cipher cipher = Cipher.getInstance(ALGORITHM);
-        IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
-        cipher.init(Cipher.ENCRYPT_MODE, key, ivParameterSpec);
+        SecretKeySpec keySpec = new SecretKeySpec(key.getEncoded(), "AES");
+        GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(TAG_LENGTH * 8, iv);
+        cipher.init(Cipher.ENCRYPT_MODE, keySpec, gcmParameterSpec);
         SealedObject sealedObject = new SealedObject(object, cipher);
         return sealedObject;
     }
@@ -65,8 +69,9 @@ public class AES {
             IOException {
 
         Cipher cipher = Cipher.getInstance(ALGORITHM);
-        IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
-        cipher.init(Cipher.DECRYPT_MODE, key, ivParameterSpec);
+        SecretKeySpec keySpec = new SecretKeySpec(key.getEncoded(), "AES");
+        GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(TAG_LENGTH * 8, iv);
+        cipher.init(Cipher.DECRYPT_MODE, keySpec, gcmParameterSpec);
         Serializable unsealObject = (Serializable) sealedObject.getObject(cipher);
         return unsealObject;
     }
