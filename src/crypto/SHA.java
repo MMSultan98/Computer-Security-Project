@@ -10,6 +10,7 @@ public class SHA {
     
     private static final String ALGORITHM = "SHA-512";
 
+    
     public static byte[] generateHash(Serializable object)
             throws NoSuchAlgorithmException, IOException {
         

@@ -14,10 +14,12 @@ import java.security.SignatureException;
 public class DSA {
 
     private static final String ALGORITHM = "SHA512withDSA";
+    public static final int KEY_SIZE = 2048;
 
-    public static KeyPair generateKeyPair(int n) throws NoSuchAlgorithmException {
+    
+    public static KeyPair generateKeyPair() throws NoSuchAlgorithmException {
         KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("DSA");
-        keyPairGen.initialize(n);
+        keyPairGen.initialize(KEY_SIZE);
         KeyPair pair = keyPairGen.generateKeyPair();
         return pair;
     }

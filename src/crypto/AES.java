@@ -27,6 +27,7 @@ public class AES {
     public static final int IV_LENGTH = 12;
     public static final int TAG_LENGTH = 16;
 
+    
     public static SecretKey generateKey() throws NoSuchAlgorithmException {
         KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
         keyGenerator.init(KEY_SIZE);
