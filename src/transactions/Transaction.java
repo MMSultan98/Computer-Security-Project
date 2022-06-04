@@ -2,41 +2,30 @@ package transactions;
 
 import java.io.Serializable;
 
-public abstract class Transaction implements Serializable {
+public class Transaction implements Serializable {
     
-    private int doctorID;
-    private int patientID;
-    private String date;
+    private TransactionHashPointer previousTransaction;
+    private TransactionServer transaction;
+    private byte[] transactionSignature;
 
 
-    public Transaction(int doctorID, int patientID, String date) {
-        this.doctorID = doctorID;
-        this.patientID = patientID;
-        this.date = date;
-    }    
-
-    public int getDoctorID() {
-        return this.doctorID;
+    public Transaction(TransactionHashPointer previousTransaction, TransactionServer transaction, byte[] transactionSignature) {
+        this.previousTransaction = previousTransaction;
+        this.transaction = transaction;
+        this.transactionSignature = transactionSignature;
     }
 
-    public void setDoctorID(int doctorID) {
-        this.doctorID = doctorID;
-    }
-
-    public int getPatientID() {
-        return this.patientID;
-    }
-
-    public void setPatientID(int patientID) {
-        this.patientID = patientID;
-    }
-
-    public String getDate() {
-        return this.date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
-    }
     
+    public TransactionHashPointer getPreviousTransaction() {
+        return this.previousTransaction;
+    }
+
+    public TransactionServer getTransaction() {
+        return this.transaction;
+    }
+
+    public byte[] getTransactionSignature() {
+        return this.transactionSignature;
+    }
+
 }

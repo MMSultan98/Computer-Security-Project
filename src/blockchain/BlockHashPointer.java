@@ -1,20 +1,20 @@
-package transactions;
+package blockchain;
 
 import java.io.Serializable;
 
-public class TransactionHashPointer implements Serializable {
- 
-    private Transaction pointer;
+public class BlockHashPointer implements Serializable {
+    
+    private Block pointer;
     private byte[] hash;
 
 
-    public TransactionHashPointer(Transaction pointer, byte[] hash) {
+    public BlockHashPointer(Block pointer, byte[] hash) {
         this.pointer = pointer;
         this.hash = hash;
     }
 
     
-    public Transaction getPointer() {
+    public Block getPointer() {
         return this.pointer;
     }
 
