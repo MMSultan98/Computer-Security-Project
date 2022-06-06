@@ -23,7 +23,7 @@ public class Network {
     public void createPatient() {
         boolean success = this.server.createPatient();
         if (success) {
-            System.out.println("Patient created succesfully.");
+            System.out.println("Patient created successfully.");
         }
     }
 
@@ -32,7 +32,7 @@ public class Network {
         doctors.put(doctor.getDoctorID(), doctor);
         boolean success = server.addDoctor(doctor.getDoctorID(), doctor.getPublicKey());
         if (success) {
-            System.out.println("Doctor created succesfully.");
+            System.out.println("Doctor created successfully.");
         }
     }
 
@@ -48,7 +48,7 @@ public class Network {
         }
         boolean success = doctor.addPatient(patientID, symmetricKey);
         if (success) {
-            System.out.println("Patient assigned to doctor succesfully.");
+            System.out.println("Patient assigned to doctor successfully.");
         }
     }
 
@@ -65,9 +65,9 @@ public class Network {
             System.err.println("Could not create transaction at client.");
             return;
         }
-        boolean success = this.server.recieveTransaction(transactionClient);
+        boolean success = this.server.receiveTransaction(transactionClient);
         if (success) {
-            System.out.println("Transaction created and recieved succesfully.");
+            System.out.println("Transaction created and received successfully.");
         }
     }
 
@@ -84,9 +84,9 @@ public class Network {
             System.err.println("Could not create transaction at client.");
             return;
         }
-        boolean success = this.server.recieveTransaction(transactionClient);
+        boolean success = this.server.receiveTransaction(transactionClient);
         if (success) {
-            System.out.println("Transaction created and recieved succesfully.");
+            System.out.println("Transaction created and received successfully.");
         }
     }
 
@@ -102,9 +102,9 @@ public class Network {
             System.err.println("Could not create transaction at client.");
             return;
         }
-        boolean success = this.server.recieveTransaction(transactionClient);
+        boolean success = this.server.receiveTransaction(transactionClient);
         if (success) {
-            System.out.println("Transaction created and recieved succesfully.");
+            System.out.println("Transaction created and received successfully.");
         }
     }
 
@@ -122,9 +122,9 @@ public class Network {
             System.err.println("Could not retrieve transactions from server.");
             return;
         }
-        boolean success = doctor.recieveTransactions(transactions);
+        boolean success = doctor.receiveTransactions(transactions);
         if (success) {
-            System.out.println(transactions.size() + " transaction(s) recieved succesfully.");
+            System.out.println(transactions.size() + " transaction(s) received successfully.");
         }
     }
 
@@ -142,9 +142,9 @@ public class Network {
             System.err.println("Could not retrieve transactions from server.");
             return;
         }
-        boolean success = doctor.recieveTransactions(transactions);
+        boolean success = doctor.receiveTransactions(transactions);
         if (success) {
-            System.out.println(transactions.size() + " transaction(s) recieved succesfully.");
+            System.out.println(transactions.size() + " transaction(s) received successfully.");
         }
     }
 
@@ -162,9 +162,9 @@ public class Network {
             System.err.println("Could not retrieve transactions from server.");
             return;
         }
-        boolean success = doctor.recieveTransactions(transactions);
+        boolean success = doctor.receiveTransactions(transactions);
         if (success) {
-            System.out.println(transactions.size() + " transaction(s) recieved succesfully.");
+            System.out.println(transactions.size() + " transaction(s) received successfully.");
         }
     }
 

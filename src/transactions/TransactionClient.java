@@ -6,13 +6,13 @@ import javax.crypto.SealedObject;
 public class TransactionClient implements Serializable {
     
     private TransactionHeader transactionHeader;
-    private SealedObject encrypedTransactionBody;
+    private SealedObject encryptedTransactionBody;
     private byte[] transactionSignature;
 
 
-    public TransactionClient(TransactionHeader transactionHeader, SealedObject encrypedTransactionBody, byte[] transactionSignature) {
+    public TransactionClient(TransactionHeader transactionHeader, SealedObject encryptedTransactionBody, byte[] transactionSignature) {
         this.transactionHeader = transactionHeader;
-        this.encrypedTransactionBody = encrypedTransactionBody;
+        this.encryptedTransactionBody = encryptedTransactionBody;
         this.transactionSignature = transactionSignature;
     }
 
@@ -21,8 +21,8 @@ public class TransactionClient implements Serializable {
         return this.transactionHeader;
     }
 
-    public SealedObject getEncrypedTransactionBody() {
-        return this.encrypedTransactionBody;
+    public SealedObject getEncryptedTransactionBody() {
+        return this.encryptedTransactionBody;
     }
 
     public byte[] getTransactionSignature() {

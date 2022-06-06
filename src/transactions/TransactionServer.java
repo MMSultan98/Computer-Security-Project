@@ -7,14 +7,14 @@ public class TransactionServer implements Serializable {
     
     private int transactionID;
     private TransactionHeader transactionHeader;
-    private SealedObject encrypedTransactionBody;
+    private SealedObject encryptedTransactionBody;
     private byte[] transactionClientSignature;
 
 
-    public TransactionServer(int transactionID, TransactionHeader transactionHeader, SealedObject encrypedTransactionBody, byte[] transactionClientSignature) {
+    public TransactionServer(int transactionID, TransactionHeader transactionHeader, SealedObject encryptedTransactionBody, byte[] transactionClientSignature) {
         this.transactionID = transactionID;
         this.transactionHeader = transactionHeader;
-        this.encrypedTransactionBody = encrypedTransactionBody;
+        this.encryptedTransactionBody = encryptedTransactionBody;
         this.transactionClientSignature = transactionClientSignature;
     }
 
@@ -27,8 +27,8 @@ public class TransactionServer implements Serializable {
         return this.transactionHeader;
     }
 
-    public SealedObject getEncrypedTransactionBody() {
-        return this.encrypedTransactionBody;
+    public SealedObject getEncryptedTransactionBody() {
+        return this.encryptedTransactionBody;
     }
 
     public byte[] getTransactionClientSignature() {

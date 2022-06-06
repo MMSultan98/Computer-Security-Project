@@ -42,10 +42,24 @@ public class TransactionHeader implements Serializable {
 
     @Override
     public String toString() {
-        String result = "Transaction type: " + this.transactionType + "\n";
+        String transactionType;
+        switch (this.transactionType) {
+            case TransactionBody.PATIENT_INFO:
+                transactionType = "Patient Information Transaction";
+                break;
+            case TransactionBody.VISIT:
+                transactionType = "Visit Transaction";
+                break;
+            case TransactionBody.LAB_TEST:
+                transactionType = "Lab Test Transaction";
+                break;
+            default:
+                transactionType = "";
+                break;
+        }
+        String result = "Transaction type: " + transactionType + "\n";
         result += "Doctor ID: " + this.doctorID + "\n";
         result += "Patient ID: " + this.patientID + "\n";
-        result += "IV: " + this.iv + "\n";
         result += "Timestamp: " + this.timestamp;
         return result;
     }

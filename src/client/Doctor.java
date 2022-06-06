@@ -69,16 +69,16 @@ public class Doctor {
         TransactionHeader transactionHeader = new TransactionHeader(TransactionBody.PATIENT_INFO, this.doctorID,
                 patientID, iv);
         TransactionBody transactionBody = new PatientInfo(name, age, weight, height, sex, initialMeasurements);
-        SealedObject encrypedTransactionBody = encrptTransaction(transactionBody,
+        SealedObject encryptedTransactionBody = encryptTransaction(transactionBody,
                 patient.getSymmetricKey(), iv);
-        if (encrypedTransactionBody == null) {
+        if (encryptedTransactionBody == null) {
             return null;
         }
-        byte[] signature = signTransaction(transactionHeader, encrypedTransactionBody);
+        byte[] signature = signTransaction(transactionHeader, encryptedTransactionBody);
         if (signature == null) {
             return null;
         }
-        TransactionClient transactionClient = new TransactionClient(transactionHeader, encrypedTransactionBody,
+        TransactionClient transactionClient = new TransactionClient(transactionHeader, encryptedTransactionBody,
                 signature);
         return transactionClient;
     }
@@ -94,16 +94,16 @@ public class Doctor {
         TransactionHeader transactionHeader = new TransactionHeader(TransactionBody.VISIT, this.doctorID, patientID,
                 iv);
         TransactionBody transactionBody = new Visit(reason, diagnosis, measurements, prescription);
-        SealedObject encrypedTransactionBody = encrptTransaction(transactionBody,
+        SealedObject encryptedTransactionBody = encryptTransaction(transactionBody,
                 patient.getSymmetricKey(), iv);
-        if (encrypedTransactionBody == null) {
+        if (encryptedTransactionBody == null) {
             return null;
         }
-        byte[] signature = signTransaction(transactionHeader, encrypedTransactionBody);
+        byte[] signature = signTransaction(transactionHeader, encryptedTransactionBody);
         if (signature == null) {
             return null;
         }
-        TransactionClient transactionClient = new TransactionClient(transactionHeader, encrypedTransactionBody,
+        TransactionClient transactionClient = new TransactionClient(transactionHeader, encryptedTransactionBody,
                 signature);
         return transactionClient;
     }
@@ -118,16 +118,16 @@ public class Doctor {
         TransactionHeader transactionHeader = new TransactionHeader(TransactionBody.LAB_TEST, this.doctorID, patientID,
                 iv);
         TransactionBody transactionBody = new LabTest(testName, results);
-        SealedObject encrypedTransactionBody = encrptTransaction(transactionBody,
+        SealedObject encryptedTransactionBody = encryptTransaction(transactionBody,
                 patient.getSymmetricKey(), iv);
-        if (encrypedTransactionBody == null) {
+        if (encryptedTransactionBody == null) {
             return null;
         }
-        byte[] signature = signTransaction(transactionHeader, encrypedTransactionBody);
+        byte[] signature = signTransaction(transactionHeader, encryptedTransactionBody);
         if (signature == null) {
             return null;
         }
-        TransactionClient transactionClient = new TransactionClient(transactionHeader, encrypedTransactionBody,
+        TransactionClient transactionClient = new TransactionClient(transactionHeader, encryptedTransactionBody,
                 signature);
         return transactionClient;
     }
@@ -156,7 +156,7 @@ public class Doctor {
         return true;
     }
 
-    public boolean recieveTransactions(ArrayList<Transaction> transactions) {
+    public boolean receiveTransactions(ArrayList<Transaction> transactions) {
         ArrayList<TransactionHeader> transactionHeaders = new ArrayList<TransactionHeader>(transactions.size());
         ArrayList<TransactionBody> transactionBodies = new ArrayList<TransactionBody>(transactions.size());
         for (Transaction transaction : transactions) {
@@ -165,33 +165,35 @@ public class Doctor {
                 return false;
             }
             TransactionHeader transactionHeader = transaction.getTransaction().getTransactionHeader();
-            SealedObject encrypedTransactionBody = transaction.getTransaction().getEncrypedTransactionBody();
-            TransactionBody transactionBody = decryptTransaction(encrypedTransactionBody,
+            SealedObject encryptedTransactionBody = transaction.getTransaction().getEncryptedTransactionBody();
+            TransactionBody transactionBody = decryptTransaction(encryptedTransactionBody,
                     this.patients.get(transactionHeader.getPatientID()).getSymmetricKey(), transactionHeader.getIv());
-            transactionHeaders.add(transactionHeader);
-            transactionBodies.add(transactionBody);
+            if (transactionBody != null) {
+                transactionHeaders.add(transactionHeader);
+                transactionBodies.add(transactionBody);
+            }
         }
         displayTransactions(transactionHeaders, transactionBodies);
         return true;
     }
 
-    private SealedObject encrptTransaction(TransactionBody transactionBody, SecretKey key, byte[] iv) {
-        SealedObject encrypedTransactionBody;
+    private SealedObject encryptTransaction(TransactionBody transactionBody, SecretKey key, byte[] iv) {
+        SealedObject encryptedTransactionBody;
         try {
-            encrypedTransactionBody = AES.encryptObject(transactionBody, key, iv);
+            encryptedTransactionBody = AES.encryptObject(transactionBody, key, iv);
         } catch (InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException
                 | InvalidAlgorithmParameterException | IllegalBlockSizeException | IOException e) {
             System.err.println("Could not encrypt transaction.");
             e.printStackTrace();
             return null;
         }
-        return encrypedTransactionBody;
+        return encryptedTransactionBody;
     }
 
-    private TransactionBody decryptTransaction(SealedObject encrypedTransactionBody, SecretKey key, byte[] iv) {
+    private TransactionBody decryptTransaction(SealedObject encryptedTransactionBody, SecretKey key, byte[] iv) {
         TransactionBody transactionBody;
         try {
-            transactionBody = (TransactionBody) AES.decryptObject(encrypedTransactionBody, key, iv);
+            transactionBody = (TransactionBody) AES.decryptObject(encryptedTransactionBody, key, iv);
         } catch (InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException
                 | InvalidAlgorithmParameterException | ClassNotFoundException | BadPaddingException
                 | IllegalBlockSizeException | IOException e) {
@@ -202,12 +204,12 @@ public class Doctor {
         return transactionBody;
     }
 
-    private byte[] signTransaction(TransactionHeader transactionHeader, SealedObject encrypedTransactionBody) {
+    private byte[] signTransaction(TransactionHeader transactionHeader, SealedObject encryptedTransactionBody) {
         byte[] signature;
         try {
             HashSet<Object> set = new HashSet<Object>();
             set.add(transactionHeader);
-            set.add(encrypedTransactionBody);
+            set.add(encryptedTransactionBody);
             signature = DSA.signObject(set, this.keyPair.getPrivate());
         } catch (InvalidKeyException | NoSuchAlgorithmException | SignatureException | IOException e) {
             System.err.println("Could not sign transaction.");

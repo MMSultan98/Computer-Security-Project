@@ -94,7 +94,7 @@ public class Server {
         return patient.getSymmetricKey();
     }
 
-    public boolean recieveTransaction(TransactionClient transactionClient) {
+    public boolean receiveTransaction(TransactionClient transactionClient) {
         Doctor doctor = this.doctors.get(transactionClient.getTransactionHeader().getDoctorID());
         Patient patient = this.patients.get(transactionClient.getTransactionHeader().getPatientID());
         if (doctor == null) {
@@ -110,7 +110,7 @@ public class Server {
         try {
             HashSet<Object> set = new HashSet<Object>();
             set.add(transactionClient.getTransactionHeader());
-            set.add(transactionClient.getEncrypedTransactionBody());
+            set.add(transactionClient.getEncryptedTransactionBody());
             verified = DSA.verifyObject(set, transactionClient.getTransactionSignature(), doctor.getPublicKey());
         } catch (InvalidKeyException | NoSuchAlgorithmException | SignatureException | IOException e) {
             System.err.println("Could not verify transaction.");
@@ -136,7 +136,7 @@ public class Server {
 
         TransactionHashPointer previousTransactionHashPointer = patient.getLastTransaction();
         TransactionServer transactionServer = new TransactionServer(this.currentTransactionID++,
-                transactionClient.getTransactionHeader(), transactionClient.getEncrypedTransactionBody(),
+                transactionClient.getTransactionHeader(), transactionClient.getEncryptedTransactionBody(),
                 transactionClient.getTransactionSignature());
         byte[] transactionSignature;
         try {
