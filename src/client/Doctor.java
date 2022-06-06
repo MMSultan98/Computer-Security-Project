@@ -1,11 +1,29 @@
 package client;
 
+import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.SignatureException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SealedObject;
 import javax.crypto.SecretKey;
+import crypto.AES;
 import crypto.DSA;
+import transactions.Transaction;
+import transactions.TransactionBody;
+import transactions.TransactionClient;
+import transactions.TransactionHeader;
+import transactions.body.LabTest;
+import transactions.body.PatientInfo;
+import transactions.body.Visit;
 
 public class Doctor {
 
@@ -14,12 +32,11 @@ public class Doctor {
     private PublicKey serverPublicKey;
     private HashMap<Integer, Patient> patients;
 
-    
     public Doctor(int doctorID, PublicKey serverPublicKey) {
         this.doctorID = doctorID;
         this.serverPublicKey = serverPublicKey;
         try {
-            this.keyPair =  DSA.generateKeyPair();
+            this.keyPair = DSA.generateKeyPair();
         } catch (NoSuchAlgorithmException e) {
             System.err.println("Could not generate key pair for the doctor.");
             e.printStackTrace();
@@ -35,37 +52,196 @@ public class Doctor {
         return this.keyPair.getPublic();
     }
 
-    public void addPatient(int patientID, SecretKey symmetricKey) {
+    public boolean addPatient(int patientID, SecretKey symmetricKey) {
         Patient newPatient = new Patient(patientID, symmetricKey);
-        patients.put(patientID, newPatient);
+        this.patients.put(patientID, newPatient);
+        return true;
     }
 
-    public void createTransaction() {
-        // TODO
-    }
-    
-    public void createPatientInfoTransaction() {
-        // TODO
+    public TransactionClient createPatientInfoTransaction(int patientID, String name, String age,
+            String weight, String height, String sex, HashMap<String, String> initialMeasurements) {
+        Patient patient = this.patients.get(patientID);
+        if (patient == null) {
+            System.err.println("Invalid or unauthorized patient id.");
+            return null;
+        }
+        byte[] iv = AES.generateIV();
+        TransactionHeader transactionHeader = new TransactionHeader(TransactionBody.PATIENT_INFO, this.doctorID,
+                patientID, iv);
+        TransactionBody transactionBody = new PatientInfo(name, age, weight, height, sex, initialMeasurements);
+        SealedObject encrypedTransactionBody = encrptTransaction(transactionBody,
+                patient.getSymmetricKey(), iv);
+        if (encrypedTransactionBody == null) {
+            return null;
+        }
+        byte[] signature = signTransaction(transactionHeader, encrypedTransactionBody);
+        if (signature == null) {
+            return null;
+        }
+        TransactionClient transactionClient = new TransactionClient(transactionHeader, encrypedTransactionBody,
+                signature);
+        return transactionClient;
     }
 
-    public void createVisitTransaction() {
-        // TODO
+    public TransactionClient createVisitTransaction(int patientID, String reason, String diagnosis,
+            HashMap<String, String> measurements, HashMap<String, String> prescription) {
+        Patient patient = this.patients.get(patientID);
+        if (patient == null) {
+            System.err.println("Invalid or unauthorized patient id.");
+            return null;
+        }
+        byte[] iv = AES.generateIV();
+        TransactionHeader transactionHeader = new TransactionHeader(TransactionBody.VISIT, this.doctorID, patientID,
+                iv);
+        TransactionBody transactionBody = new Visit(reason, diagnosis, measurements, prescription);
+        SealedObject encrypedTransactionBody = encrptTransaction(transactionBody,
+                patient.getSymmetricKey(), iv);
+        if (encrypedTransactionBody == null) {
+            return null;
+        }
+        byte[] signature = signTransaction(transactionHeader, encrypedTransactionBody);
+        if (signature == null) {
+            return null;
+        }
+        TransactionClient transactionClient = new TransactionClient(transactionHeader, encrypedTransactionBody,
+                signature);
+        return transactionClient;
     }
 
-    public void createLabTestTransaction() {
-        // TODO
+    public TransactionClient createLabTestTransaction(int patientID, String testName, HashMap<String, String> results) {
+        Patient patient = this.patients.get(patientID);
+        if (patient == null) {
+            System.err.println("Invalid or unauthorized patient id.");
+            return null;
+        }
+        byte[] iv = AES.generateIV();
+        TransactionHeader transactionHeader = new TransactionHeader(TransactionBody.LAB_TEST, this.doctorID, patientID,
+                iv);
+        TransactionBody transactionBody = new LabTest(testName, results);
+        SealedObject encrypedTransactionBody = encrptTransaction(transactionBody,
+                patient.getSymmetricKey(), iv);
+        if (encrypedTransactionBody == null) {
+            return null;
+        }
+        byte[] signature = signTransaction(transactionHeader, encrypedTransactionBody);
+        if (signature == null) {
+            return null;
+        }
+        TransactionClient transactionClient = new TransactionClient(transactionHeader, encrypedTransactionBody,
+                signature);
+        return transactionClient;
     }
 
-    public void getLastPatientTransaction() {
-        // TODO
-    }
-    
-    public void getPatientTransactions() {
-        // TODO
+    public boolean getLastPatientTransaction(int patientID) {
+        if (this.patients.get(patientID) == null) {
+            System.err.println("Invalid or unauthorized patient id.");
+            return false;
+        }
+        return true;
     }
 
-    public void getPatientTransactionsQuery() {
-        // TODO
+    public boolean getAllPatientTransactions(int patientID) {
+        if (this.patients.get(patientID) == null) {
+            System.err.println("Invalid or unauthorized patient id.");
+            return false;
+        }
+        return true;
+    }
+
+    public boolean getPatientTransactionsQuery(int patientID) {
+        if (this.patients.get(patientID) == null) {
+            System.err.println("Invalid or unauthorized patient id.");
+            return false;
+        }
+        return true;
+    }
+
+    public boolean recieveTransactions(ArrayList<Transaction> transactions) {
+        ArrayList<TransactionHeader> transactionHeaders = new ArrayList<TransactionHeader>(transactions.size());
+        ArrayList<TransactionBody> transactionBodies = new ArrayList<TransactionBody>(transactions.size());
+        for (Transaction transaction : transactions) {
+            boolean verified = verifyTransaction(transaction);
+            if (!verified) {
+                return false;
+            }
+            TransactionHeader transactionHeader = transaction.getTransaction().getTransactionHeader();
+            SealedObject encrypedTransactionBody = transaction.getTransaction().getEncrypedTransactionBody();
+            TransactionBody transactionBody = decryptTransaction(encrypedTransactionBody,
+                    this.patients.get(transactionHeader.getPatientID()).getSymmetricKey(), transactionHeader.getIv());
+            transactionHeaders.add(transactionHeader);
+            transactionBodies.add(transactionBody);
+        }
+        displayTransactions(transactionHeaders, transactionBodies);
+        return true;
+    }
+
+    private SealedObject encrptTransaction(TransactionBody transactionBody, SecretKey key, byte[] iv) {
+        SealedObject encrypedTransactionBody;
+        try {
+            encrypedTransactionBody = AES.encryptObject(transactionBody, key, iv);
+        } catch (InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException
+                | InvalidAlgorithmParameterException | IllegalBlockSizeException | IOException e) {
+            System.err.println("Could not encrypt transaction.");
+            e.printStackTrace();
+            return null;
+        }
+        return encrypedTransactionBody;
+    }
+
+    private TransactionBody decryptTransaction(SealedObject encrypedTransactionBody, SecretKey key, byte[] iv) {
+        TransactionBody transactionBody;
+        try {
+            transactionBody = (TransactionBody) AES.decryptObject(encrypedTransactionBody, key, iv);
+        } catch (InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException
+                | InvalidAlgorithmParameterException | ClassNotFoundException | BadPaddingException
+                | IllegalBlockSizeException | IOException e) {
+            System.err.println("Could not decrypt transaction.");
+            e.printStackTrace();
+            return null;
+        }
+        return transactionBody;
+    }
+
+    private byte[] signTransaction(TransactionHeader transactionHeader, SealedObject encrypedTransactionBody) {
+        byte[] signature;
+        try {
+            HashSet<Object> set = new HashSet<Object>();
+            set.add(transactionHeader);
+            set.add(encrypedTransactionBody);
+            signature = DSA.signObject(set, this.keyPair.getPrivate());
+        } catch (InvalidKeyException | NoSuchAlgorithmException | SignatureException | IOException e) {
+            System.err.println("Could not sign transaction.");
+            e.printStackTrace();
+            return null;
+        }
+        return signature;
+    }
+
+    private boolean verifyTransaction(Transaction transaction) {
+        boolean verified;
+        try {
+            HashSet<Object> set = new HashSet<Object>();
+            set.add(transaction.getPreviousTransaction());
+            set.add(transaction.getTransaction());
+            verified = DSA.verifyObject(set, transaction.getTransactionSignature(), this.serverPublicKey);
+        } catch (InvalidKeyException | NoSuchAlgorithmException | SignatureException | IOException e) {
+            System.err.println("Could not verify transaction.");
+            e.printStackTrace();
+            return false;
+        }
+        if (!verified) {
+            System.err.println("Invalid transaction signature.");
+        }
+        return true;
+    }
+
+    private void displayTransactions(ArrayList<TransactionHeader> transactionHeaders, ArrayList<TransactionBody> transactionBodies) {
+        System.out.println();
+        for (int i = 0; i < transactionHeaders.size(); i++) {
+            System.out.println(transactionHeaders.get(i).toString());
+            System.out.println(transactionBodies.get(i).toString());
+            System.out.println();
+        }
     }
 
 }

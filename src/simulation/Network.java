@@ -1,16 +1,18 @@
 package simulation;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import javax.crypto.SecretKey;
 import client.Doctor;
 import server.Server;
+import transactions.Transaction;
+import transactions.TransactionClient;
 
 public class Network {
-    
+
     private Server server;
     private int currentDoctorID;
     private HashMap<Integer, Doctor> doctors;
-
 
     public Network() {
         this.server = new Server();
@@ -18,57 +20,152 @@ public class Network {
         this.doctors = new HashMap<Integer, Doctor>();
     }
 
-
     public void createPatient() {
-        server.createPatient();
+        boolean success = this.server.createPatient();
+        if (success) {
+            System.out.println("Patient created succesfully.");
+        }
     }
 
     public void createDoctor() {
-        int doctorID = ++currentDoctorID;
-        Doctor doctor = new Doctor(doctorID, this.server.getPublicKey());
-        doctors.put(doctorID, doctor);
-        server.addDoctor(doctorID, doctor.getPublicKey());
+        Doctor doctor = new Doctor(++this.currentDoctorID, this.server.getPublicKey());
+        doctors.put(doctor.getDoctorID(), doctor);
+        boolean success = server.addDoctor(doctor.getDoctorID(), doctor.getPublicKey());
+        if (success) {
+            System.out.println("Doctor created succesfully.");
+        }
     }
 
     public void assignPatientToDoctor(int patientID, int doctorID) {
-        Doctor doctor = doctors.get(doctorID);
+        Doctor doctor = this.doctors.get(doctorID);
         if (doctor == null) {
             System.err.println("Invalid doctor id.");
             return;
         }
-        SecretKey symmetricKey = server.assignPatientToDoctor(patientID, doctorID);
+        SecretKey symmetricKey = this.server.assignPatientToDoctor(patientID, doctorID);
         if (symmetricKey == null) {
             return;
         }
-        doctor.addPatient(patientID, symmetricKey);
+        boolean success = doctor.addPatient(patientID, symmetricKey);
+        if (success) {
+            System.out.println("Patient assigned to doctor succesfully.");
+        }
     }
 
-    public void createTransaction() {
-        // TODO
+    public void createPatientInfoTransaction(int doctorID, int patientID, String name, String age,
+            String weight, String height, String sex, HashMap<String, String> initialMeasurements) {
+        Doctor doctor = this.doctors.get(doctorID);
+        if (doctor == null) {
+            System.err.println("Invalid doctor id.");
+            return;
+        }
+        TransactionClient transactionClient = doctor.createPatientInfoTransaction(patientID, name, age, weight, height,
+                sex, initialMeasurements);
+        if (transactionClient == null) {
+            System.err.println("Could not create transaction at client.");
+            return;
+        }
+        boolean success = this.server.recieveTransaction(transactionClient);
+        if (success) {
+            System.out.println("Transaction created and recieved succesfully.");
+        }
     }
 
-    public void createPatientInfoTransaction() {
-        // TODO
+    public void createVisitTransaction(int doctorID, int patientID, String reason, String diagnosis,
+            HashMap<String, String> measurements, HashMap<String, String> prescription) {
+        Doctor doctor = this.doctors.get(doctorID);
+        if (doctor == null) {
+            System.err.println("Invalid doctor id.");
+            return;
+        }
+        TransactionClient transactionClient = doctor.createVisitTransaction(patientID, reason, diagnosis, measurements,
+                prescription);
+        if (transactionClient == null) {
+            System.err.println("Could not create transaction at client.");
+            return;
+        }
+        boolean success = this.server.recieveTransaction(transactionClient);
+        if (success) {
+            System.out.println("Transaction created and recieved succesfully.");
+        }
     }
 
-    public void createVisitTransaction() {
-        // TODO
+    public void createLabTestTransaction(int doctorID, int patientID, String testName,
+            HashMap<String, String> results) {
+        Doctor doctor = this.doctors.get(doctorID);
+        if (doctor == null) {
+            System.err.println("Invalid doctor id.");
+            return;
+        }
+        TransactionClient transactionClient = doctor.createLabTestTransaction(patientID, testName, results);
+        if (transactionClient == null) {
+            System.err.println("Could not create transaction at client.");
+            return;
+        }
+        boolean success = this.server.recieveTransaction(transactionClient);
+        if (success) {
+            System.out.println("Transaction created and recieved succesfully.");
+        }
     }
 
-    public void createLabTestTransaction() {
-        // TODO
+    public void getLastPatientTransaction(int doctorID, int patientID) {
+        Doctor doctor = this.doctors.get(doctorID);
+        if (doctor == null) {
+            System.err.println("Invalid doctor id.");
+            return;
+        }
+        if (!doctor.getLastPatientTransaction(patientID)) {
+            return;
+        }
+        ArrayList<Transaction> transactions = this.server.getLastPatientTransaction(doctorID, patientID);
+        if (transactions == null) {
+            System.err.println("Could not retrieve transactions from server.");
+            return;
+        }
+        boolean success = doctor.recieveTransactions(transactions);
+        if (success) {
+            System.out.println(transactions.size() + " transaction(s) recieved succesfully.");
+        }
     }
 
-    public void getLastPatientTransaction() {
-        // TODO
-    }
-    
-    public void getPatientTransactions() {
-        // TODO
+    public void getAllPatientTransactions(int doctorID, int patientID) {
+        Doctor doctor = this.doctors.get(doctorID);
+        if (doctor == null) {
+            System.err.println("Invalid doctor id.");
+            return;
+        }
+        if (!doctor.getLastPatientTransaction(patientID)) {
+            return;
+        }
+        ArrayList<Transaction> transactions = this.server.getAllPatientTransactions(doctorID, patientID);
+        if (transactions == null) {
+            System.err.println("Could not retrieve transactions from server.");
+            return;
+        }
+        boolean success = doctor.recieveTransactions(transactions);
+        if (success) {
+            System.out.println(transactions.size() + " transaction(s) recieved succesfully.");
+        }
     }
 
-    public void getPatientTransactionsQuery() {
-        // TODO
+    public void getPatientTransactionsQuery(int doctorID, int patientID) {
+        Doctor doctor = this.doctors.get(doctorID);
+        if (doctor == null) {
+            System.err.println("Invalid doctor id.");
+            return;
+        }
+        if (!doctor.getLastPatientTransaction(patientID)) {
+            return;
+        }
+        ArrayList<Transaction> transactions = this.server.getPatientTransactionsQuery(doctorID, patientID);
+        if (transactions == null) {
+            System.err.println("Could not retrieve transactions from server.");
+            return;
+        }
+        boolean success = doctor.recieveTransactions(transactions);
+        if (success) {
+            System.out.println(transactions.size() + " transaction(s) recieved succesfully.");
+        }
     }
-    
+
 }
