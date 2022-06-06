@@ -21,19 +21,14 @@ public class Network {
     }
 
     public void createPatient() {
-        boolean success = this.server.createPatient();
-        if (success) {
-            System.out.println("Patient created successfully.");
-        }
+        this.server.createPatient();
     }
 
     public void createDoctor() {
-        Doctor doctor = new Doctor(++this.currentDoctorID, this.server.getPublicKey());
-        doctors.put(doctor.getDoctorID(), doctor);
-        boolean success = server.addDoctor(doctor.getDoctorID(), doctor.getPublicKey());
-        if (success) {
-            System.out.println("Doctor created successfully.");
-        }
+        Doctor newDoctor = new Doctor(++this.currentDoctorID, this.server.getPublicKey());
+        doctors.put(newDoctor.getDoctorID(), newDoctor);
+        server.addDoctor(newDoctor.getDoctorID(), newDoctor.getPublicKey());
+        System.out.println("Doctor (" + newDoctor.getDoctorID() + ") created successfully.");
     }
 
     public void assignPatientToDoctor(int patientID, int doctorID) {
@@ -46,10 +41,7 @@ public class Network {
         if (symmetricKey == null) {
             return;
         }
-        boolean success = doctor.addPatient(patientID, symmetricKey);
-        if (success) {
-            System.out.println("Patient assigned to doctor successfully.");
-        }
+        doctor.addPatient(patientID, symmetricKey);
     }
 
     public void createPatientInfoTransaction(int doctorID, int patientID, String name, String age,
@@ -62,13 +54,9 @@ public class Network {
         TransactionClient transactionClient = doctor.createPatientInfoTransaction(patientID, name, age, weight, height,
                 sex, initialMeasurements);
         if (transactionClient == null) {
-            System.err.println("Could not create transaction at client.");
             return;
         }
-        boolean success = this.server.receiveTransaction(transactionClient);
-        if (success) {
-            System.out.println("Transaction created and received successfully.");
-        }
+        this.server.receiveTransaction(transactionClient);
     }
 
     public void createVisitTransaction(int doctorID, int patientID, String reason, String diagnosis,
@@ -84,10 +72,7 @@ public class Network {
             System.err.println("Could not create transaction at client.");
             return;
         }
-        boolean success = this.server.receiveTransaction(transactionClient);
-        if (success) {
-            System.out.println("Transaction created and received successfully.");
-        }
+        this.server.receiveTransaction(transactionClient);
     }
 
     public void createLabTestTransaction(int doctorID, int patientID, String testName,
@@ -102,10 +87,7 @@ public class Network {
             System.err.println("Could not create transaction at client.");
             return;
         }
-        boolean success = this.server.receiveTransaction(transactionClient);
-        if (success) {
-            System.out.println("Transaction created and received successfully.");
-        }
+        this.server.receiveTransaction(transactionClient);
     }
 
     public void getLastPatientTransaction(int doctorID, int patientID) {
@@ -118,14 +100,7 @@ public class Network {
             return;
         }
         ArrayList<Transaction> transactions = this.server.getLastPatientTransaction(doctorID, patientID);
-        if (transactions == null) {
-            System.err.println("Could not retrieve transactions from server.");
-            return;
-        }
-        boolean success = doctor.receiveTransactions(transactions);
-        if (success) {
-            System.out.println(transactions.size() + " transaction(s) received successfully.");
-        }
+        doctor.receiveTransactions(transactions);
     }
 
     public void getAllPatientTransactions(int doctorID, int patientID) {
@@ -138,14 +113,7 @@ public class Network {
             return;
         }
         ArrayList<Transaction> transactions = this.server.getAllPatientTransactions(doctorID, patientID);
-        if (transactions == null) {
-            System.err.println("Could not retrieve transactions from server.");
-            return;
-        }
-        boolean success = doctor.receiveTransactions(transactions);
-        if (success) {
-            System.out.println(transactions.size() + " transaction(s) received successfully.");
-        }
+        doctor.receiveTransactions(transactions);
     }
 
     public void getPatientTransactionsQuery(int doctorID, int patientID) {
@@ -158,14 +126,7 @@ public class Network {
             return;
         }
         ArrayList<Transaction> transactions = this.server.getPatientTransactionsQuery(doctorID, patientID);
-        if (transactions == null) {
-            System.err.println("Could not retrieve transactions from server.");
-            return;
-        }
-        boolean success = doctor.receiveTransactions(transactions);
-        if (success) {
-            System.out.println(transactions.size() + " transaction(s) received successfully.");
-        }
+        doctor.receiveTransactions(transactions);
     }
 
 }

@@ -52,10 +52,10 @@ public class Doctor {
         return this.keyPair.getPublic();
     }
 
-    public boolean addPatient(int patientID, SecretKey symmetricKey) {
+    public void addPatient(int patientID, SecretKey symmetricKey) {
         Patient newPatient = new Patient(patientID, symmetricKey);
         this.patients.put(patientID, newPatient);
-        return true;
+        System.out.println("Patient assigned to doctor successfully.");
     }
 
     public TransactionClient createPatientInfoTransaction(int patientID, String name, String age,
@@ -156,13 +156,17 @@ public class Doctor {
         return true;
     }
 
-    public boolean receiveTransactions(ArrayList<Transaction> transactions) {
+    public void receiveTransactions(ArrayList<Transaction> transactions) {
+        if (transactions == null) {
+            System.err.println("Could not retrieve transactions from server.");
+            return;
+        }
         ArrayList<TransactionHeader> transactionHeaders = new ArrayList<TransactionHeader>(transactions.size());
         ArrayList<TransactionBody> transactionBodies = new ArrayList<TransactionBody>(transactions.size());
         for (Transaction transaction : transactions) {
             boolean verified = verifyTransaction(transaction);
             if (!verified) {
-                return false;
+                return;
             }
             TransactionHeader transactionHeader = transaction.getTransaction().getTransactionHeader();
             SealedObject encryptedTransactionBody = transaction.getTransaction().getEncryptedTransactionBody();
@@ -174,7 +178,7 @@ public class Doctor {
             }
         }
         displayTransactions(transactionHeaders, transactionBodies);
-        return true;
+        System.out.println(transactions.size() + " transaction(s) received successfully.");
     }
 
     private SealedObject encryptTransaction(TransactionBody transactionBody, SecretKey key, byte[] iv) {
@@ -237,7 +241,8 @@ public class Doctor {
         return true;
     }
 
-    private void displayTransactions(ArrayList<TransactionHeader> transactionHeaders, ArrayList<TransactionBody> transactionBodies) {
+    private void displayTransactions(ArrayList<TransactionHeader> transactionHeaders,
+            ArrayList<TransactionBody> transactionBodies) {
         System.out.println();
         for (int i = 0; i < transactionHeaders.size(); i++) {
             System.out.println(transactionHeaders.get(i).toString());

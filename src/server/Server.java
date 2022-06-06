@@ -58,25 +58,23 @@ public class Server {
         return this.keyPair.getPublic();
     }
 
-    
-    public boolean createPatient() {
+    public void createPatient() {
         SecretKey symmetricKey;
         try {
             symmetricKey = AES.generateKey();
         } catch (NoSuchAlgorithmException e) {
             System.err.println("Could not generate symmetric key for the patient.");
             e.printStackTrace();
-            return false;
+            return;
         }
         Patient newPatient = new Patient(++currentPatientID, symmetricKey);
         this.patients.put(newPatient.getPatientID(), newPatient);
-        return true;
+        System.out.println("Patient (" + newPatient.getPatientID() + ") created successfully.");
     }
 
-    public boolean addDoctor(int doctorID, PublicKey doctorPublicKey) {
+    public void addDoctor(int doctorID, PublicKey doctorPublicKey) {
         Doctor newDoctor = new Doctor(doctorID, doctorPublicKey);
         this.doctors.put(doctorID, newDoctor);
-        return true;
     }
 
     public SecretKey assignPatientToDoctor(int patientID, int doctorID) {
@@ -94,16 +92,16 @@ public class Server {
         return patient.getSymmetricKey();
     }
 
-    public boolean receiveTransaction(TransactionClient transactionClient) {
+    public void receiveTransaction(TransactionClient transactionClient) {
         Doctor doctor = this.doctors.get(transactionClient.getTransactionHeader().getDoctorID());
         Patient patient = this.patients.get(transactionClient.getTransactionHeader().getPatientID());
         if (doctor == null) {
             System.err.println("Invalid doctor id.");
-            return false;
+            return;
         }
         if (patient == null) {
             System.err.println("Invalid patient id.");
-            return false;
+            return;
         }
 
         boolean verified;
@@ -115,23 +113,23 @@ public class Server {
         } catch (InvalidKeyException | NoSuchAlgorithmException | SignatureException | IOException e) {
             System.err.println("Could not verify transaction.");
             e.printStackTrace();
-            return false;
+            return;
         }
         if (!verified) {
             System.err.println("Invalid transaction signature.");
-            return false;
+            return;
         }
 
         if (!doctor.getPatients().contains(patient.getPatientID())) {
             System.err.println("Unauthorized doctor patient id.");
-            return false;
+            return;
         }
 
         boolean isPatientInfo = transactionClient.getTransactionHeader()
                 .getTransactionType() == TransactionBody.PATIENT_INFO;
         if (patient.getLastTransaction() == null && !isPatientInfo) {
             System.err.println("First transaction must be patient info.");
-            return false;
+            return;
         }
 
         TransactionHashPointer previousTransactionHashPointer = patient.getLastTransaction();
@@ -147,7 +145,7 @@ public class Server {
         } catch (InvalidKeyException | NoSuchAlgorithmException | SignatureException | IOException e) {
             System.err.println("Could not sign the transaction.");
             e.printStackTrace();
-            return false;
+            return;
         }
 
         Transaction newTransaction = new Transaction(previousTransactionHashPointer, transactionServer,
@@ -158,16 +156,17 @@ public class Server {
         } catch (NoSuchAlgorithmException | IOException e) {
             System.err.println("Could not hash the transaction.");
             e.printStackTrace();
-            return false;
+            return;
         }
-        TransactionHashPointer newTransactionHashPointer = new TransactionHashPointer(newTransaction, newTransactionHash);
+        TransactionHashPointer newTransactionHashPointer = new TransactionHashPointer(newTransaction,
+                newTransactionHash);
         patient.setLastTransaction(newTransactionHashPointer);
         this.pendingTransactions.add(newTransaction);
         this.pendingPatients.add(patient);
         if (this.pendingTransactions.size() == BLOCK_NUM_TRANSACTIONS) {
             publishBlock();
         }
-        return true;
+        System.out.println("Transaction created and received successfully.");
     }
 
     public ArrayList<Transaction> getLastPatientTransaction(int doctorID, int patientID) {
@@ -226,7 +225,6 @@ public class Server {
         return transactions;
     }
 
-    
     private void publishBlock() {
         BlockHashPointer previousBlockHashPointer = this.blockchain.getHead();
         BlockBody blockBody = new BlockBody(this.currentBlockID++, this.pendingTransactions);
@@ -287,7 +285,7 @@ public class Server {
             return false;
         }
         if (!verified) {
-            System.err.println("Invalid transaction hash transaction.");
+            System.err.println("Invalid transaction hash.");
         }
         return true;
     }
