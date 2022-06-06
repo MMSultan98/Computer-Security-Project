@@ -25,6 +25,10 @@ public class Doctor {
         return this.doctorPublicKey;
     }
 
+    public HashSet<Integer> getPatients() {
+        return this.patients;
+    }
+
     public void addPatient(int patientID) {
         this.patients.add(patientID);
     }

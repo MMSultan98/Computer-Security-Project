@@ -12,7 +12,7 @@ public class BlockBody implements Serializable {
     private Date timestamp;
 
 
-    public BlockBody(int blockID, ArrayList<Transaction> transactions, Date timestamp) {
+    public BlockBody(int blockID, ArrayList<Transaction> transactions) {
         this.blockID = blockID;
         this.transactions = transactions;
         this.timestamp = new Date();
