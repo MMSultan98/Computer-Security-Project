@@ -44,4 +44,16 @@ public class PatientInfo extends TransactionBody {
         return this.initialMeasurements;
     }
 
+
+    @Override
+    public String toString() {
+        String result = "Name: " + this.name + "\n";
+        result += "Age: " + this.age + "\n";
+        result += "Weight: " + this.weight + "\n";
+        result += "Height: " + this.height + "\n";
+        result += "Sex: " + this.sex + "\n";
+        result += "Initial measurements: " + this.initialMeasurements.toString();
+        return result;
+    }
+
 }

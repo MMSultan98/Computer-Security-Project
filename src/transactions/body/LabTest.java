@@ -24,4 +24,12 @@ public class LabTest extends TransactionBody {
         return this.results;
     }
 
+
+    @Override
+    public String toString() {
+        String result = "Test name: " + this.testName + "\n";
+        result += "Results: " + this.results.toString();
+        return result;
+    }
+
 }

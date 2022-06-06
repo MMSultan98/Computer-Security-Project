@@ -34,4 +34,14 @@ public class Visit extends TransactionBody {
         return this.prescription;
     }
     
+
+    @Override
+    public String toString() {
+        String result = "Reason: " + this.reason + "\n";
+        result += "Diagnosis: " + this.diagnosis + "\n";
+        result += "Measurements: " + this.measurements.toString() + "\n";
+        result += "Prescription: " + this.prescription.toString();
+        return result;
+    }
+
 }

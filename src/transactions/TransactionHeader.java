@@ -39,4 +39,15 @@ public class TransactionHeader implements Serializable {
         return this.timestamp;
     }
     
+
+    @Override
+    public String toString() {
+        String result = "Transaction type: " + this.transactionType + "\n";
+        result += "Doctor ID: " + this.doctorID + "\n";
+        result += "Patient ID: " + this.patientID + "\n";
+        result += "IV: " + this.iv + "\n";
+        result += "Timestamp: " + this.timestamp;
+        return result;
+    }
+
 }
