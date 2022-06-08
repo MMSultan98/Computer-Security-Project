@@ -205,26 +205,6 @@ public class Server {
         return transactions;
     }
 
-    public ArrayList<Transaction> getPatientTransactionsQuery(int doctorID, int patientID) {
-        if (!verifyTransactionsRequest(doctorID, patientID)) {
-            return null;
-        }
-        ArrayList<Transaction> transactions = new ArrayList<Transaction>();
-        Patient patient = this.patients.get(patientID);
-        TransactionHashPointer transactionHashPointer = patient.getLastPublishedTransaction();
-        while (transactionHashPointer != null) {
-            if (!verifyTransactionHash(transactionHashPointer)) {
-                return null;
-            }
-            Transaction transaction = transactionHashPointer.getPointer();
-            if (checkTransactionQuery(transaction)) {
-                transactions.add(transaction);
-            }
-            transactionHashPointer = transaction.getPreviousTransaction();
-        }
-        return transactions;
-    }
-
     private void publishBlock() {
         BlockHashPointer previousBlockHashPointer = this.blockchain.getHead();
         BlockBody blockBody = new BlockBody(this.currentBlockID++, this.pendingTransactions);
@@ -287,11 +267,6 @@ public class Server {
         if (!verified) {
             System.err.println("Invalid transaction hash.");
         }
-        return true;
-    }
-
-    private boolean checkTransactionQuery(Transaction transaction) {
-        // TODO
         return true;
     }
 

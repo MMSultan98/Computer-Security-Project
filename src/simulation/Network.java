@@ -116,17 +116,4 @@ public class Network {
         doctor.receiveTransactions(transactions);
     }
 
-    public void getPatientTransactionsQuery(int doctorID, int patientID) {
-        Doctor doctor = this.doctors.get(doctorID);
-        if (doctor == null) {
-            System.err.println("Invalid doctor id.");
-            return;
-        }
-        if (!doctor.getLastPatientTransaction(patientID)) {
-            return;
-        }
-        ArrayList<Transaction> transactions = this.server.getPatientTransactionsQuery(doctorID, patientID);
-        doctor.receiveTransactions(transactions);
-    }
-
 }

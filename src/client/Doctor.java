@@ -148,14 +148,6 @@ public class Doctor {
         return true;
     }
 
-    public boolean getPatientTransactionsQuery(int patientID) {
-        if (this.patients.get(patientID) == null) {
-            System.err.println("Invalid or unauthorized patient id.");
-            return false;
-        }
-        return true;
-    }
-
     public void receiveTransactions(ArrayList<Transaction> transactions) {
         if (transactions == null) {
             System.err.println("Could not retrieve transactions from server.");
