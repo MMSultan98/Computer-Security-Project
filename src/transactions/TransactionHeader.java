@@ -9,7 +9,6 @@ public class TransactionHeader implements Serializable {
     private byte[] iv;
     private Date timestamp;
 
-
     public TransactionHeader(int transactionType, int doctorID, int patientID, byte[] iv) {
         this.transactionType = transactionType;
         this.doctorID = doctorID;
@@ -18,7 +17,6 @@ public class TransactionHeader implements Serializable {
         this.timestamp = new Date();
     }
 
-    
     public int getTransactionType() {
         return this.transactionType;
     }
@@ -38,7 +36,6 @@ public class TransactionHeader implements Serializable {
     public Date getTimestamp() {
         return this.timestamp;
     }
-    
 
     @Override
     public String toString() {

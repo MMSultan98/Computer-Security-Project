@@ -16,7 +16,7 @@ public class Network {
 
     public Network() {
         this.server = new Server();
-        this.currentDoctorID = 0;
+        this.currentDoctorID = 1;
         this.doctors = new HashMap<Integer, Doctor>();
     }
 
@@ -25,7 +25,7 @@ public class Network {
     }
 
     public void createDoctor() {
-        Doctor newDoctor = new Doctor(++this.currentDoctorID, this.server.getPublicKey());
+        Doctor newDoctor = new Doctor(this.currentDoctorID++, this.server.getPublicKey());
         doctors.put(newDoctor.getDoctorID(), newDoctor);
         server.addDoctor(newDoctor.getDoctorID(), newDoctor.getPublicKey());
         System.out.println("Doctor (" + newDoctor.getDoctorID() + ") created successfully.");
@@ -114,6 +114,10 @@ public class Network {
         }
         ArrayList<Transaction> transactions = this.server.getAllPatientTransactions(doctorID, patientID);
         doctor.receiveTransactions(transactions);
+    }
+
+    public void viewBlocks() {
+        this.server.viewBlocks();
     }
 
 }

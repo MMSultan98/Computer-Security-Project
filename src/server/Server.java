@@ -27,31 +27,53 @@ public class Server {
 
     private static final int BLOCK_NUM_TRANSACTIONS = 3;
 
-    private int currentPatientID;
-    private int currentTransactionID;
-    private int currentBlockID;
     private KeyPair keyPair;
     private Blockchain blockchain;
     private HashMap<Integer, Patient> patients;
     private HashMap<Integer, Doctor> doctors;
     private ArrayList<Transaction> pendingTransactions;
     private HashSet<Patient> pendingPatients;
+    private int currentPatientID;
+    private int currentTransactionID;
+    private int currentBlockID;
 
     public Server() {
-        this.currentPatientID = 0;
-        this.currentTransactionID = 0;
-        this.currentBlockID = 0;
         try {
             this.keyPair = DSA.generateKeyPair();
         } catch (NoSuchAlgorithmException e) {
             System.err.println("Could not generate key pair for the server.");
             e.printStackTrace();
         }
-        this.blockchain = new Blockchain();
+        BlockBody genesisBlockBody = new BlockBody(0, new ArrayList<Transaction>());
+        byte[] genesisBlockSignature;
+        try {
+            HashSet<Object> set = new HashSet<Object>();
+            set.add(null);
+            set.add(genesisBlockBody);
+            genesisBlockSignature = DSA.signObject(set, this.keyPair.getPrivate());
+        } catch (InvalidKeyException | NoSuchAlgorithmException | SignatureException | IOException e) {
+            System.err.println("Could not sign the block.");
+            e.printStackTrace();
+            return;
+        }
+        Block genesisBlock = new Block(null, genesisBlockBody, genesisBlockSignature);
+        byte[] genesisBlockHash;
+        try {
+            genesisBlockHash = SHA.generateHash(genesisBlock);
+        } catch (Exception e) {
+            System.err.println("Could not generate block hash.");
+            e.printStackTrace();
+            return;
+        }
+        BlockHashPointer head = new BlockHashPointer(genesisBlock, genesisBlockHash);
+        this.blockchain = new Blockchain(head);
         this.patients = new HashMap<Integer, Patient>();
         this.doctors = new HashMap<Integer, Doctor>();
         this.pendingTransactions = new ArrayList<Transaction>();
         this.pendingPatients = new HashSet<Patient>();
+        this.currentPatientID = 1;
+        this.currentTransactionID = 0;
+        this.currentBlockID = 1;
     }
 
     public PublicKey getPublicKey() {
@@ -67,7 +89,7 @@ public class Server {
             e.printStackTrace();
             return;
         }
-        Patient newPatient = new Patient(++currentPatientID, symmetricKey);
+        Patient newPatient = new Patient(currentPatientID++, symmetricKey);
         this.patients.put(newPatient.getPatientID(), newPatient);
         System.out.println("Patient (" + newPatient.getPatientID() + ") created successfully.");
     }
@@ -205,21 +227,38 @@ public class Server {
         return transactions;
     }
 
+    public void viewBlocks() {
+        int i = 0;
+        BlockHashPointer blockHashPointer = this.blockchain.getHead();
+        while (blockHashPointer != null) {
+            if (!verifyBlockHash(blockHashPointer)) {
+                System.err.println("Incorrect block hash detected.");
+                return;
+            }
+            Block block = blockHashPointer.getPointer();
+            System.out.println(block.getBlockBody().toString());
+            System.out.println();
+            blockHashPointer = block.getPreviousBlockHashPointer();
+            i++;
+        }
+        System.out.println(i + " block(s) verified successfully.");
+    }
+
     private void publishBlock() {
         BlockHashPointer previousBlockHashPointer = this.blockchain.getHead();
         BlockBody blockBody = new BlockBody(this.currentBlockID++, this.pendingTransactions);
-        byte[] blockBodySignature;
+        byte[] blockSignature;
         try {
             HashSet<Object> set = new HashSet<Object>();
             set.add(previousBlockHashPointer);
             set.add(blockBody);
-            blockBodySignature = DSA.signObject(set, this.keyPair.getPrivate());
+            blockSignature = DSA.signObject(set, this.keyPair.getPrivate());
         } catch (InvalidKeyException | NoSuchAlgorithmException | SignatureException | IOException e) {
             System.err.println("Could not sign the block.");
             e.printStackTrace();
             return;
         }
-        Block newBlock = new Block(previousBlockHashPointer, blockBody, blockBodySignature);
+        Block newBlock = new Block(previousBlockHashPointer, blockBody, blockSignature);
         byte[] newBlockHash;
         try {
             newBlockHash = SHA.generateHash(newBlock);
@@ -259,6 +298,21 @@ public class Server {
         boolean verified;
         try {
             verified = SHA.verifyHash(transactionHashPointer.getPointer(), transactionHashPointer.getHash());
+        } catch (NoSuchAlgorithmException | IOException e) {
+            System.err.println("Could not verify transaction hash.");
+            e.printStackTrace();
+            return false;
+        }
+        if (!verified) {
+            System.err.println("Invalid transaction hash.");
+        }
+        return true;
+    }
+
+    private boolean verifyBlockHash(BlockHashPointer blockHashPointer) {
+        boolean verified;
+        try {
+            verified = SHA.verifyHash(blockHashPointer.getPointer(), blockHashPointer.getHash());
         } catch (NoSuchAlgorithmException | IOException e) {
             System.err.println("Could not verify transaction hash.");
             e.printStackTrace();

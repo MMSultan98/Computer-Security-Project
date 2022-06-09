@@ -25,6 +25,7 @@ public class Simulation {
         System.out.println("3- Assign patient to a doctor");
         System.out.println("4- Add a new record for a patient");
         System.out.println("5- Get patient(s) record(s)");
+        System.out.println("6- View blocks");
         System.out.println();
         String input = System.console().readLine();
         System.out.println();
@@ -43,6 +44,9 @@ public class Simulation {
                 break;
             case "5":
                 this.getRecords();
+                break;
+            case "6":
+                this.network.viewBlocks();
                 break;
             case "7aram 3aliko":
                 System.out.println("W 3alikom el salam");

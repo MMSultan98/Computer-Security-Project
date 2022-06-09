@@ -169,7 +169,7 @@ public class Doctor {
                 transactionBodies.add(transactionBody);
             }
         }
-        displayTransactions(transactionHeaders, transactionBodies);
+        viewTransactions(transactionHeaders, transactionBodies);
         System.out.println(transactions.size() + " transaction(s) received successfully.");
     }
 
@@ -233,7 +233,7 @@ public class Doctor {
         return true;
     }
 
-    private void displayTransactions(ArrayList<TransactionHeader> transactionHeaders,
+    private void viewTransactions(ArrayList<TransactionHeader> transactionHeaders,
             ArrayList<TransactionBody> transactionBodies) {
         System.out.println();
         for (int i = 0; i < transactionHeaders.size(); i++) {

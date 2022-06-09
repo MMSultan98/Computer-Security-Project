@@ -3,18 +3,16 @@ package blockchain;
 import java.io.Serializable;
 
 public class Block implements Serializable {
-    
+
     private BlockHashPointer previousBlockHashPointer;
     private BlockBody blockBody;
-    private byte[] blockBodySignature;
+    private byte[] blockSignature;
 
-
-    public Block(BlockHashPointer previousBlockHashPointer, BlockBody blockBody, byte[] blockBodySignature) {
+    public Block(BlockHashPointer previousBlockHashPointer, BlockBody blockBody, byte[] blockSignature) {
         this.previousBlockHashPointer = previousBlockHashPointer;
         this.blockBody = blockBody;
-        this.blockBodySignature = blockBodySignature;
+        this.blockSignature = blockSignature;
     }
-
 
     public BlockHashPointer getPreviousBlockHashPointer() {
         return this.previousBlockHashPointer;
@@ -24,8 +22,8 @@ public class Block implements Serializable {
         return this.blockBody;
     }
 
-    public byte[] getBlockBodySignature() {
-        return this.blockBodySignature;
+    public byte[] getBlockSignature() {
+        return this.blockSignature;
     }
-   
+
 }
