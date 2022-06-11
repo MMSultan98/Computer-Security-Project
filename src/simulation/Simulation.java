@@ -5,14 +5,16 @@ import java.util.HashMap;
 public class Simulation {
 
     private Network network;
+    private boolean isRunning;
 
     public Simulation() {
         this.network = new Network();
     }
 
     public void startSimulation() {
+        this.isRunning = true;
         System.out.println("Simulation running...");
-        while (true) {
+        while (this.isRunning) {
             this.displayOptions();
         }
     }
@@ -26,6 +28,7 @@ public class Simulation {
         System.out.println("4- Add a new record for a patient");
         System.out.println("5- Get patient(s) record(s)");
         System.out.println("6- View blocks");
+        System.out.println("0- End simulation");
         System.out.println();
         String input = System.console().readLine();
         System.out.println();
@@ -48,11 +51,15 @@ public class Simulation {
             case "6":
                 this.network.viewBlocks();
                 break;
+            case "0":
+                this.isRunning = false;
+                System.out.println("Simulation ended.");
+                break;
             case "7aram 3aliko":
-                System.out.println("W 3alikom el salam");
+                System.out.println("W 3alikom el salam.");
                 break;
             case "#":
-                System.out.println("Ta7eyat HashTech team");
+                System.out.println("Ta7eyat HashTech team.");
                 break;
             default:
                 System.out.println("Invalid option.");
