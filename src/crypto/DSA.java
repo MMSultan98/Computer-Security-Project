@@ -16,7 +16,6 @@ public class DSA {
     private static final String ALGORITHM = "SHA512withDSA";
     public static final int KEY_SIZE = 2048;
 
-    
     public static KeyPair generateKeyPair() throws NoSuchAlgorithmException {
         KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("DSA");
         keyPairGen.initialize(KEY_SIZE);
@@ -30,7 +29,7 @@ public class DSA {
 
         Signature sign = Signature.getInstance(ALGORITHM);
         sign.initSign(privateKey);
-        byte[] bytes =Helpers.objectToByteArray(object);
+        byte[] bytes = Helpers.objectToByteArray(object);
         sign.update(bytes);
         byte[] signature = sign.sign();
         return signature;
@@ -39,7 +38,7 @@ public class DSA {
     public static boolean verifyObject(Serializable object, byte[] signature, PublicKey publicKey)
             throws NoSuchAlgorithmException, InvalidKeyException,
             SignatureException, IOException {
-        
+
         Signature sign = Signature.getInstance(ALGORITHM);
         sign.initVerify(publicKey);
         byte[] bytes = Helpers.objectToByteArray(object);

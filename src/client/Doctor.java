@@ -60,6 +60,7 @@ public class Doctor {
 
     public TransactionClient createPatientInfoTransaction(int patientID, String name, String age,
             String weight, String height, String sex, HashMap<String, String> initialMeasurements) {
+
         Patient patient = this.patients.get(patientID);
         if (patient == null) {
             System.err.println("Invalid or unauthorized patient id.");
@@ -85,6 +86,7 @@ public class Doctor {
 
     public TransactionClient createVisitTransaction(int patientID, String reason, String diagnosis,
             HashMap<String, String> measurements, HashMap<String, String> prescription) {
+
         Patient patient = this.patients.get(patientID);
         if (patient == null) {
             System.err.println("Invalid or unauthorized patient id.");
@@ -163,7 +165,7 @@ public class Doctor {
             TransactionHeader transactionHeader = transaction.getTransaction().getTransactionHeader();
             SealedObject encryptedTransactionBody = transaction.getTransaction().getEncryptedTransactionBody();
             TransactionBody transactionBody = decryptTransaction(encryptedTransactionBody,
-                    this.patients.get(transactionHeader.getPatientID()).getSymmetricKey(), transactionHeader.getIv());
+                    this.patients.get(transactionHeader.getPatientID()).getSymmetricKey(), transactionHeader.getIV());
             if (transactionBody != null) {
                 transactionHeaders.add(transactionHeader);
                 transactionBodies.add(transactionBody);

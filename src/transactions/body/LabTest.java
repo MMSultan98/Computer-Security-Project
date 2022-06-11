@@ -8,22 +8,19 @@ public class LabTest extends TransactionBody {
     private String testName;
     private HashMap<String, String> results;
 
-
-    public LabTest(String testName, HashMap<String,String> results) {
+    public LabTest(String testName, HashMap<String, String> results) {
         super();
         this.testName = testName;
         this.results = results;
     }
 
-    
     public String getTestName() {
         return this.testName;
     }
 
-    public HashMap<String,String> getResults() {
+    public HashMap<String, String> getResults() {
         return this.results;
     }
-
 
     @Override
     public String toString() {

@@ -11,8 +11,8 @@ import transactions.TransactionClient;
 public class Network {
 
     private Server server;
-    private int currentDoctorID;
     private HashMap<Integer, Doctor> doctors;
+    private int currentDoctorID;
 
     public Network() {
         this.server = new Server();

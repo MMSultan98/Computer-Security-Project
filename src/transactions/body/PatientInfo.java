@@ -8,8 +8,8 @@ public class PatientInfo extends TransactionBody {
     private String name, age, weight, height, sex;
     private HashMap<String, String> initialMeasurements;
 
-
-    public PatientInfo(String name, String age, String weight, String height, String sex, HashMap<String,String> initialMeasurements) {
+    public PatientInfo(String name, String age, String weight, String height, String sex,
+            HashMap<String, String> initialMeasurements) {
         super();
         this.name = name;
         this.age = age;
@@ -18,7 +18,6 @@ public class PatientInfo extends TransactionBody {
         this.sex = sex;
         this.initialMeasurements = initialMeasurements;
     }
-
 
     public String getName() {
         return this.name;
@@ -40,10 +39,9 @@ public class PatientInfo extends TransactionBody {
         return this.sex;
     }
 
-    public HashMap<String,String> getInitialMeasurements() {
+    public HashMap<String, String> getInitialMeasurements() {
         return this.initialMeasurements;
     }
-
 
     @Override
     public String toString() {

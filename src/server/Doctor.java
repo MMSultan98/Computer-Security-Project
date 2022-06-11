@@ -9,14 +9,12 @@ public class Doctor {
     private PublicKey doctorPublicKey;
     private HashSet<Integer> patients;
 
-
     public Doctor(int doctorID, PublicKey doctorPublicKey) {
         this.doctorID = doctorID;
         this.doctorPublicKey = doctorPublicKey;
         this.patients = new HashSet<Integer>();
     }
 
-    
     public int getDoctorID() {
         return this.doctorID;
     }

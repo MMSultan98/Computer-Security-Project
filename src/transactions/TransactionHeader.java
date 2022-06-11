@@ -29,7 +29,7 @@ public class TransactionHeader implements Serializable {
         return this.patientID;
     }
 
-    public byte[] getIv() {
+    public byte[] getIV() {
         return this.iv;
     }
 
